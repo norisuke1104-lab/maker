@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音楽Ⅰ 評価規準作成ツール</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; line-height: 1.6; }
+        .container { display: flex; gap: 20px; max-width: 1200px; margin: 0 auto; }
+        .panel { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); flex: 1; }
+        .left-panel { flex: 1.2; overflow-y: auto; max-height: 90vh; }
+        .right-panel { flex: 1; position: sticky; top: 20px; overflow-y: auto; max-height: 90vh; display: flex; flex-direction: column; }
+        h1 { font-size: 1.5rem; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-top: 0; display: flex; justify-content: space-between; align-items: center; }
+        h2 { font-size: 1.2rem; background: #ecf0f1; padding: 8px 12px; border-left: 4px solid #3498db; margin-top: 20px; }
+        label { display: block; margin-bottom: 6px; cursor: pointer; font-size: 0.9rem; padding-left: 15px; }
+        input[type="checkbox"] { margin-right: 8px; }
+        input[type="text"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .domain-section { margin-bottom: 15px; padding: 10px; border: 1px solid #e0e0e0; border-radius: 6px; }
+        .domain-section.disabled { opacity: 0.5; background: #f9f9f9; }
+        .domain-toggle { font-weight: bold; font-size: 1.1rem; color: #e74c3c; margin-bottom: 10px; padding-left: 0; }
+        
+        .instruction-text { font-size: 0.9rem; color: #2c3e50; margin: 10px 0 6px 0; padding-left: 6px; border-left: 3px solid #bdc3c7; line-height: 1.4; font-weight: bold; }
+        
+        .result-box { margin-bottom: 20px; padding: 15px; border: 1px solid #b2bec3; border-radius: 6px; background: #fafafa; position: relative; }
+        .result-title { font-weight: bold; font-size: 1.2rem; color: #2c3e50; margin-bottom: 10px; border-bottom: 2px solid #bdc3c7; padding-bottom: 5px; }
+        .sub-title { font-weight: bold; font-size: 1rem; color: #16a085; margin: 15px 0 8px 0; border-left: 4px solid #16a085; padding-left: 8px; }
+        .content-text { font-size: 0.9rem; color: #444; background: #fff; padding: 10px; border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 15px; white-space: pre-wrap; }
+        .result-item { margin-bottom: 10px; font-size: 0.95rem; }
+        .result-label { font-size: 0.8rem; color: #fff; background: #7f8c8d; padding: 2px 6px; border-radius: 3px; margin-right: 8px; vertical-align: middle; }
+        .empty-msg { color: #7f8c8d; font-style: italic; font-size: 0.9rem; }
+        
+        button { cursor: pointer; border: none; border-radius: 4px; padding: 6px 12px; font-size: 0.85rem; transition: background 0.2s; font-weight: bold; }
+        .btn-clear { background-color: #e74c3c; color: white; font-size: 0.85rem; padding: 6px 12px; }
+        .btn-clear:hover { background-color: #c0392b; }
+        .btn-copy { background-color: #3498db; color: white; position: absolute; top: 10px; right: 10px; }
+        .btn-copy:hover { background-color: #2980b9; }
+        .btn-csv { background-color: #27ae60; color: white; font-size: 0.9rem; padding: 8px 16px; }
+        .btn-csv:hover { background-color: #2ecc71; }
+        #output-container { flex-grow: 1; overflow-y: auto; padding-right: 5px; margin-top: 15px; }
+        
+        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 4px; padding: 10px; position: fixed; z-index: 1; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 0.9rem; }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="panel left-panel">
+        <h1>
+            入力フォーム
+            <button class="btn-clear" onclick="uncheckAll()">すべてのチェックを外す</button>
+        </h1>
+        
+        <h2>取り扱う領域及び内容等に〇を入れる</h2>
+
+        <div class="domain-section" id="sec-singing">
+            <label class="domain-toggle"><input type="checkbox" id="enable-singing" class="trigger-update"> A表現：歌唱</label>
+            <div class="domain-content">
+                <div class="instruction-text">ア 歌唱表現に関わる知識や技能を得たり生かしたりしながら、自己のイメージをもって歌唱表現を創意工夫すること。</div>
+                
+                <div class="instruction-text">イ 次の（ｱ）から（ｳ）までについて理解すること。</div>
+                <label><input type="checkbox" value="曲想と音楽の構造や歌詞、文化的・歴史的背景との関わり" class="singing-k trigger-update"> （ｱ）曲想と音楽の構造や歌詞、文化的・歴史的背景との関わり</label>
+                <label><input type="checkbox" value="言葉の特性と曲種に応じた発声との関わり" class="singing-k trigger-update"> （ｲ）言葉の特性と曲種に応じた発声との関わり</label>
+                <label><input type="checkbox" value="様々な表現形態による歌唱表現の特徴" class="singing-k trigger-update"> （ｳ）様々な表現形態による歌唱表現の特徴</label>
+                
+                <div class="instruction-text">ウ 創意工夫を生かした歌唱表現をするために必要な、次の（ｱ）から（ｳ）までの技能を身に付けること。</div>
+                <label><input type="checkbox" value="曲にふさわしい発声、言葉の発音、身体の使い方などの技能" class="singing-s trigger-update"> （ｱ）曲にふさわしい発声、言葉の発音、身体の使い方などの技能</label>
+                <label><input type="checkbox" value="他者との調和を意識して歌う技能" class="singing-s trigger-update"> （ｲ）他者との調和を意識して歌う技能</label>
+                <label><input type="checkbox" value="表現形態の特徴を生かして歌う技能" class="singing-s trigger-update"> （ｳ）表現形態の特徴を生かして歌う技能</label>
+            </div>
+        </div>
+
+        <div class="domain-section" id="sec-instrumental">
+            <label class="domain-toggle"><input type="checkbox" id="enable-instrumental" class="trigger-update"> A表現：器楽</label>
+            <div class="domain-content">
+                <div class="instruction-text">ア 器楽表現に関わる知識や技能を得たり生かしたりしながら、自己のイメージをもって器楽表現を創意工夫すること。</div>
+                
+                <div class="instruction-text">イ 次の（ｱ）から（ｳ）までについて理解すること。</div>
+                <label><input type="checkbox" value="曲想と音楽の構造や文化的・歴史的背景との関わり" class="instrumental-k trigger-update"> （ｱ）曲想と音楽の構造や文化的・歴史的背景との関わり</label>
+                <label><input type="checkbox" value="曲想と楽器の音色や奏法との関わり" class="instrumental-k trigger-update"> （ｲ）曲想と楽器の音色や奏法との関わり</label>
+                <label><input type="checkbox" value="様々な表現形態による器楽表現の特徴" class="instrumental-k trigger-update"> （ｳ）様々な表現形態による器楽表現の特徴</label>
+                
+                <div class="instruction-text">ウ 創意工夫を生かした器楽表現をするために必要な、次の（ｱ）から（ｳ）までの技能を身に付けること。</div>
+                <label><input type="checkbox" value="曲にふさわしい奏法、身体の使い方などの技能" class="instrumental-s trigger-update"> （ｱ）曲にふさわしい奏法、身体の使い方などの技能</label>
+                <label><input type="checkbox" value="他者との調和を意識して演奏する技能" class="instrumental-s trigger-update"> （ｲ）他者との調和を意識して演奏する技能</label>
+                <label><input type="checkbox" value="表現形態の特徴を生かして演奏する技能" class="instrumental-s trigger-update"> （ｳ）表現形態の特徴を生かして演奏する技能</label>
+            </div>
+        </div>
+
+        <div class="domain-section" id="sec-composition">
+            <label class="domain-toggle"><input type="checkbox" id="enable-composition" class="trigger-update"> A表現：創作</label>
+            <div class="domain-content">
+                <div class="instruction-text">ア 創作表現に関わる知識や技能を得たり生かしたりしながら、自己のイメージをもって創作表現を創意工夫すること。</div>
+                <div class="instruction-text">イ 音素材、音を連ねたり重ねたりしたときの響き、音階や音型などの特徴及び構成上の特徴について、表したいイメージと関わらせて理解すること。</div>
+                <div class="instruction-text">ウ 創意工夫を生かした創作表現をするために必要な、次の（ｱ）から（ｳ）までの技能を身に付けること。</div>
+                <label><input type="checkbox" value="反復、変化、対照などの手法を活用して音楽をつくる技能" class="composition-s trigger-update"> （ｱ）反復、変化、対照などの手法を活用して音楽をつくる技能</label>
+                <label><input type="checkbox" value="旋律をつくったり、つくった旋律に副次的な旋律や和音などを付けた音楽をつくったりする技能" class="composition-s trigger-update"> （ｲ）旋律をつくったり、つくった旋律に副次的な旋律や和音などを付けた音楽をつくったりする技能</label>
+                <label><input type="checkbox" value="音楽を形づくっている要素の働きを変化させ、変奏や編曲をする技能" class="composition-s trigger-update"> （ｳ）音楽を形づくっている要素の働きを変化させ、変奏や編曲をする技能</label>
+            </div>
+        </div>
+
+        <div class="domain-section" id="sec-appreciation">
+            <label class="domain-toggle"><input type="checkbox" id="enable-appreciation" class="trigger-update"> B鑑賞</label>
+            <div class="domain-content">
+                <div class="instruction-text">ア 鑑賞に関わる知識を得たり生かしたりしながら、次の（ｱ）から（ｳ）までについて考え、音楽のよさや美しさを自ら味わって聴くこと。</div>
+                <label><input type="checkbox" value="曲や演奏に対する評価とその根拠" class="appreciation-t trigger-update"> （ｱ）曲や演奏に対する評価とその根拠</label>
+                <label><input type="checkbox" value="自分や社会にとっての音楽の意味や価値" class="appreciation-t trigger-update"> （ｲ）自分や社会にとっての音楽の意味や価値</label>
+                <label><input type="checkbox" value="音楽表現の共通性や固有性" class="appreciation-t trigger-update"> （ｳ）音楽表現の共通性や固有性</label>
+
+                <div class="instruction-text">イ 次の（ｱ）から（ｳ）までについて理解すること。</div>
+                <label><input type="checkbox" value="曲想や表現上の効果と音楽の構造との関わり" class="appreciation-k trigger-update"> （ｱ）曲想や表現上の効果と音楽の構造との関わり</label>
+                <label><input type="checkbox" value="音楽の特徴と文化的・歴史的背景、他の芸術との関わり" class="appreciation-k trigger-update"> （ｲ）音楽の特徴と文化的・歴史的背景、他の芸術との関わり</label>
+                <label><input type="checkbox" value="我が国や郷土の伝統音楽の種類とそれぞれの特徴" class="appreciation-k trigger-update"> （ｳ）我が国や郷土の伝統音楽の種類とそれぞれの特徴</label>
+            </div>
+        </div>
+
+        <h2>「思考・判断」に関する事項（必須）</h2>
+        <div class="domain-section">            
+            <p style="font-size:0.85rem; color:#666; font-weight: bold; margin-top:0;">本題材の学習において、生徒の思考・判断のよりどころとなる主な音楽を形作っている要素を選択<br>（複数選択可。選択に当たっては「表現の工夫の対象となる要素」と区別して考えること）</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; align-items: center;">
+                <label style="padding-left:0;"><input type="checkbox" value="音色" class="common-element trigger-update"> 音色</label>
+                <label style="padding-left:0;"><input type="checkbox" value="リズム" class="common-element trigger-update"> リズム</label>
+                <label style="padding-left:0;"><input type="checkbox" value="速度" class="common-element trigger-update"> 速度</label>
+                <label style="padding-left:0;"><input type="checkbox" value="旋律" class="common-element trigger-update"> 旋律</label>
+                <label style="padding-left:0;"><input type="checkbox" value="テクスチュア" class="common-element trigger-update"> テクスチュア</label>
+                <label style="padding-left:0;"><input type="checkbox" value="強弱" class="common-element trigger-update"> 強弱</label>
+                <label style="padding-left:0;"><input type="checkbox" value="形式" class="common-element trigger-update"> 形式</label>
+                <label style="padding-left:0;"><input type="checkbox" value="構成" class="common-element trigger-update"> 構成</label>
+                <label style="padding-left:0; display:flex; align-items:center;">
+                    <input type="checkbox" value="その他" class="common-element trigger-update" id="cb-other-element"> その他
+                    <input type="text" id="other-element-input" class="trigger-update" style="margin-left: 5px; width: 150px; padding: 4px;" placeholder="自由記述">
+                </label>
+            </div>
+        </div>
+
+        <h2>「態度」に関する事項（必須）</h2>
+        <div class="domain-section">
+            <p style="font-size:0.85rem; color:#666; font-weight: bold; margin-top:0;">その題材の学習に粘り強く取り組んだり、自らの学習を調整しようとする意志をもったりできるようにするために必要な、扱う教材曲や曲種等の特徴、学習内容など、生徒に興味関心をもたせたい事柄を入力</p>
+            <input type="text" id="attitude-input" value="" placeholder="例: 曲想の変化" class="trigger-update">
+            <p style="font-size:0.8rem; color:#999; margin-top: 5px;">※自動的に「～に関心をもち、」とつながります。</p>
+        </div>
+
+    </div>
+
+    <div class="panel right-panel">
+        <h1>
+            評価規準（出力結果）
+            <button class="btn-csv" onclick="downloadCSV()">CSVダウンロード</button>
+        </h1>
+        <div id="output-container">
+            </div>
+    </div>
+</div>
+
+<div id="toast">コピーしました</div>
+
+<script>
+    let currentResultsData = []; 
+
+    function joinArray(arr) {
+        if (arr.length === 0) return "【要選択】";
+        if (arr.length === 1) return arr[0];
+        return arr[0] + "や、" + arr.slice(1).join("、");
+    }
+
+    function getCheckedValues(className) {
+        const checkboxes = document.querySelectorAll(`.${className}:checked`);
+        return Array.from(checkboxes).map(cb => cb.value);
+    }
+    
+    function getCheckedLabels(className) {
+        const checkboxes = document.querySelectorAll(`.${className}:checked`);
+        return Array.from(checkboxes).map(cb => cb.parentElement.textContent.trim());
+    }
+
+    // すべてのチェックボックス・テキスト入力を外す/消す関数
+    function uncheckAll() {
+        document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.checked = false;
+        });
+        document.getElementById("attitude-input").value = "";
+        document.getElementById("other-element-input").value = "";
+        updateOutput();
+    }
+
+    // 思考・判断要素の取得
+    function getCommonElements() {
+        const checkboxes = document.querySelectorAll('.common-element:checked');
+        let elements = [];
+        checkboxes.forEach(cb => {
+            if (cb.value === "その他") {
+                const otherVal = document.getElementById("other-element-input").value.trim();
+                if (otherVal) elements.push(otherVal);
+            } else {
+                elements.push(cb.value);
+            }
+        });
+        return elements;
+    }
+
+    function cleanAttitude(text) {
+        let cleaned = text.trim();
+        if (cleaned.endsWith("に関心をもち")) {
+            cleaned = cleaned.replace(/に関心をもち$/, "");
+        }
+        return cleaned;
+    }
+
+    function showToast(message) {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.className = "show";
+        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+    }
+
+    function copyToClipboard(index) {
+        const data = currentResultsData[index];
+        let textToCopy = `【${data.title}】\n\n`;
+        
+        textToCopy += `＜取り扱う内容＞\n${data.contentText}\n\n`;
+        textToCopy += `＜評価規準＞\n`;
+        textToCopy += `[${data.knowledgeLabel}]\n・${data.knowledgeText}\n`;
+        if (data.skillText) {
+            textToCopy += `・${data.skillText}\n`;
+        }
+        textToCopy += `\n[思考・判断・表現]\n・${data.thinkText}\n`;
+        textToCopy += `\n[主体的に学習に取り組む態度]\n・${data.attitudeText}\n`;
+
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            showToast(`${data.title}をクリップボードにコピーしました`);
+        }).catch(err => {
+            console.error('コピーに失敗しました', err);
+            alert('クリップボードへのコピーに失敗しました。');
+        });
+    }
+
+    function downloadCSV() {
+        if (currentResultsData.length === 0) {
+            alert('出力するデータがありません。');
+            return;
+        }
+
+        let csvContent = "領域,学習指導要領の内容,観点,評価規準文\n";
+
+        currentResultsData.forEach(data => {
+            const domainName = data.title;
+            const escapedContent = `"${data.contentText.replace(/"/g, '""')}"`;
+
+            // 知識・技能
+            csvContent += `"${domainName}",${escapedContent},"${data.knowledgeLabel}","${data.knowledgeText}"\n`;
+            if (data.skillText) {
+                csvContent += `"${domainName}",${escapedContent},"${data.knowledgeLabel}","${data.skillText}"\n`;
+            }
+            // 思考・判断・表現
+            csvContent += `"${domainName}",${escapedContent},"思考・判断・表現","${data.thinkText}"\n`;
+            // 態度
+            csvContent += `"${domainName}",${escapedContent},"主体的に学習に取り組む態度","${data.attitudeText}"\n`;
+        });
+
+        const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+        const blob = new Blob([bom, csvContent], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "音楽_内容と評価規準.csv";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // 表示用に【要選択】【要入力】を赤文字にするヘルパー関数
+    function highlightWarnings(text) {
+        if (!text) return "";
+        return text.replace(/【要選択】/g, '<span style="color: #e74c3c; font-weight: bold;">【要選択】</span>')
+                   .replace(/【要入力】/g, '<span style="color: #e74c3c; font-weight: bold;">【要入力】</span>');
+    }
+
+    function updateOutput() {
+        const container = document.getElementById("output-container");
+        container.innerHTML = ""; 
+        currentResultsData = []; 
+
+        const commonElementsArr = getCommonElements();
+        const commonElementStr = joinArray(commonElementsArr);
+        const elementCount = commonElementsArr.length;
+        const workStr = elementCount > 1 ? "それらの" : "その";
+        
+        const attitudeRaw = document.getElementById("attitude-input").value;
+        const attitudeText = cleanAttitude(attitudeRaw);
+        const attitudeBase = attitudeText ? `${attitudeText}に関心をもち、` : "【要入力】に関心をもち、";
+
+        const domains = [
+            {
+                id: "singing", title: "A表現：歌唱", actionText: "どのように歌うか", attitudeEnd: "歌唱の学習活動に取り組もうとしている。",
+                enabled: document.getElementById("enable-singing").checked, 
+                knowledgeValues: getCheckedValues("singing-k"), knowledgeLabels: getCheckedLabels("singing-k"),
+                skillValues: getCheckedValues("singing-s"), skillLabels: getCheckedLabels("singing-s"),
+                hasSkill: true
+            },
+            {
+                id: "instrumental", title: "A表現：器楽", actionText: "どのように演奏するか", attitudeEnd: "器楽の学習活動に取り組もうとしている。",
+                enabled: document.getElementById("enable-instrumental").checked, 
+                knowledgeValues: getCheckedValues("instrumental-k"), knowledgeLabels: getCheckedLabels("instrumental-k"),
+                skillValues: getCheckedValues("instrumental-s"), skillLabels: getCheckedLabels("instrumental-s"),
+                hasSkill: true
+            },
+            {
+                id: "composition", title: "A表現：創作", actionText: "どのように音楽をつくるか", attitudeEnd: "創作の学習活動に取り組もうとしている。",
+                enabled: document.getElementById("enable-composition").checked, 
+                knowledgeStr: "音素材、音を連ねたり重ねたりしたときの響き、音階や音型などの特徴及び構成上の特徴について、表したいイメージと関わらせて", 
+                skillValues: getCheckedValues("composition-s"), skillLabels: getCheckedLabels("composition-s"),
+                hasSkill: true
+            },
+            {
+                id: "appreciation", title: "B鑑賞", attitudeEnd: "鑑賞の学習活動に取り組もうとしている。",
+                enabled: document.getElementById("enable-appreciation").checked, 
+                knowledgeValues: getCheckedValues("appreciation-k"), knowledgeLabels: getCheckedLabels("appreciation-k"),
+                thinkValues: getCheckedValues("appreciation-t"), thinkLabels: getCheckedLabels("appreciation-t"),
+                hasSkill: false
+            }
+        ];
+
+        let hasActiveDomain = false;
+
+        domains.forEach((domain) => {
+            const section = document.getElementById(`sec-${domain.id}`);
+            if (domain.enabled) {
+                section.classList.remove("disabled");
+                section.querySelectorAll(".domain-content input").forEach(input => input.disabled = false);
+            } else {
+                section.classList.add("disabled");
+                section.querySelectorAll(".domain-content input").forEach(input => input.disabled = true);
+                return; 
+            }
+
+            hasActiveDomain = true;
+
+            // 「取り扱う内容」文の合成
+            let contentTextStr = "";
+            if (domain.id === "singing") {
+                contentTextStr += "ア 歌唱表現に関わる知識や技能を得たり生かしたりしながら、自己のイメージをもって歌唱表現を創意工夫すること。\n";
+                contentTextStr += "イ 次の（ｱ）から（ｳ）までについて理解すること。\n";
+                domain.knowledgeLabels.forEach(l => contentTextStr += `　${l}\n`);
+                contentTextStr += "ウ 創意工夫を生かした歌唱表現をするために必要な、次の（ｱ）から（ｳ）までの技能を身に付けること。\n";
+                domain.skillLabels.forEach(l => contentTextStr += `　${l}\n`);
+            } else if (domain.id === "instrumental") {
+                contentTextStr += "ア 器楽表現に関わる知識や技能を得たり生かしたりしながら、自己のイメージをもって器楽表現を創意工夫すること。\n";
+                contentTextStr += "イ 次の（ｱ）から（ｳ）までについて理解すること。\n";
+                domain.knowledgeLabels.forEach(l => contentTextStr += `　${l}\n`);
+                contentTextStr += "ウ 創意工夫を生かした器楽表現をするために必要な、次の（ｱ）から（ｳ）までの技能を身に付けること。\n";
+                domain.skillLabels.forEach(l => contentTextStr += `　${l}\n`);
+            } else if (domain.id === "composition") {
+                contentTextStr += "ア 創作表現に関わる知識や技能を得たり生かしたりしながら、自己のイメージをもって創作表現を創意工夫すること。\n";
+                contentTextStr += "イ 音素材、音を連ねたり重ねたりしたときの響き、音階や音型などの特徴及び構成上の特徴について、表したいイメージと関わらせて理解すること。\n";
+                contentTextStr += "ウ 創意工夫を生かした創作表現をするために必要な、次の（ｱ）から（ｳ）までの技能を身に付けること。\n";
+                domain.skillLabels.forEach(l => contentTextStr += `　${l}\n`);
+            } else if (domain.id === "appreciation") {
+                contentTextStr += "ア 鑑賞に関わる知識を得たり生かしたりしながら、次の（ｱ）から（ｳ）までについて考え、音楽のよさや美しさを自ら味わって聴くこと。\n";
+                domain.thinkLabels.forEach(l => contentTextStr += `　${l}\n`);
+                contentTextStr += "イ 次の（ｱ）から（ｳ）までについて理解すること。\n";
+                domain.knowledgeLabels.forEach(l => contentTextStr += `　${l}\n`);
+            }
+            contentTextStr = contentTextStr.trim();
+
+            // 「評価規準」文の合成
+            let knowledgeValuesJoined = domain.knowledgeStr || joinArray(domain.knowledgeValues);
+            let skillValuesJoined = domain.hasSkill ? joinArray(domain.skillValues) : "";
+            let thinkValuesJoined = domain.id === "appreciation" ? joinArray(domain.thinkValues) : "";
+
+            let knowledgeTextStr = domain.id === "composition" ? `${knowledgeValuesJoined}理解している。` : `${knowledgeValuesJoined}について理解している。`;
+            let skillTextStr = "";
+            if (domain.hasSkill) {
+                let verb = domain.id === "singing" ? "歌唱で" : (domain.id === "instrumental" ? "器楽で" : "創作で");
+                skillTextStr = `創意工夫を生かした${verb.replace('で','')}表現をするために必要な、${skillValuesJoined}を身に付け、${verb}表している。`;
+            }
+            
+            // 思考・判断の文言（その/それらの）の反映
+            let thinkTextStr = domain.id === "appreciation" 
+                ? `${commonElementStr}を知覚し、${workStr}働きを感受しながら、知覚したことと感受したこととの関わりについて考えるとともに、${thinkValuesJoined}について考え、音楽のよさや美しさを自ら味わって聴いている。`
+                : `${commonElementStr}を知覚し、${workStr}働きを感受しながら、知覚したことと感受したこととの関わりについて考え、${domain.actionText}について表現意図をもっている。`;
+            
+            let attitudeFullStr = `${attitudeBase}主体的・協働的に${domain.attitudeEnd}`;
+            let knowledgeLabel = domain.hasSkill ? '知識・技能' : '知識';
+
+            // データ保存（タグ無しの純粋なテキストを保存）
+            const dataIndex = currentResultsData.length;
+            currentResultsData.push({
+                title: domain.title,
+                contentText: contentTextStr,
+                knowledgeLabel: knowledgeLabel,
+                knowledgeText: knowledgeTextStr,
+                skillText: skillTextStr,
+                thinkText: thinkTextStr,
+                attitudeText: attitudeFullStr
+            });
+
+            // HTML生成（表示用には highlightWarnings を通して赤文字にする）
+            const html = `
+                <div class="result-box">
+                    <button class="btn-copy" onclick="copyToClipboard(${dataIndex})">コピー</button>
+                    <div class="result-title">${domain.title}</div>
+                    
+                    <div class="sub-title">【取り扱う内容】</div>
+                    <div class="content-text">${contentTextStr}</div>
+
+                    <div class="sub-title">【評価規準（例）】</div>
+                    <div class="result-item"><span class="result-label">${knowledgeLabel}</span>
+                        <div>・${highlightWarnings(knowledgeTextStr)}</div>
+                        ${domain.hasSkill ? `<div>・${highlightWarnings(skillTextStr)}</div>` : ''}
+                    </div>
+                    <div class="result-item"><span class="result-label">思考・判断・表現</span>
+                        <div>・${highlightWarnings(thinkTextStr)}</div>
+                    </div>
+                    <div class="result-item"><span class="result-label">主体的に学習に取り組む態度</span>
+                        <div>・${highlightWarnings(attitudeFullStr)}</div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+        });
+
+        if (!hasActiveDomain) {
+            container.innerHTML = "<p class='empty-msg'>左側のフォームから取り扱う領域（A表現/B鑑賞）にチェックを入れてください。</p>";
+        }
+    }
+
+    document.querySelectorAll('.trigger-update').forEach(el => {
+        el.addEventListener('change', updateOutput);
+        if(el.type === 'text') {
+            el.addEventListener('input', updateOutput);
+        }
+    });
+
+    updateOutput();
+</script>
+
+</body>
+</html>
