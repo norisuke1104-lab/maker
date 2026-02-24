@@ -6,22 +6,25 @@
     <title>音楽Ⅰ 評価規準作成ツール</title>
     <style>
         body { font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; line-height: 1.6; }
-        .container { display: flex; gap: 20px; max-width: 1200px; margin: 0 auto; }
+        .container { display: flex; gap: 20px; max-width: 1200px; margin: 0 auto; align-items: flex-start; }
         .panel { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); flex: 1; }
-        .left-panel { flex: 1.2; overflow-y: auto; max-height: 90vh; }
-        .right-panel { flex: 1; position: sticky; top: 20px; overflow-y: auto; max-height: 90vh; display: flex; flex-direction: column; }
-        h1 { font-size: 1.5rem; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-top: 0; display: flex; justify-content: space-between; align-items: center; }
-        h2 { font-size: 1.2rem; background: #ecf0f1; padding: 8px 12px; border-left: 4px solid #3498db; margin-top: 20px; }
+        .left-panel { flex: 1.2; overflow-y: auto; max-height: 92vh; position: sticky; top: 20px; }
+        .right-panel { flex: 1; overflow-y: auto; max-height: 92vh; display: flex; flex-direction: column; }
+        
+        h1 { font-size: 1.3rem; color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; margin-top: 0; display: flex; justify-content: space-between; align-items: center; }
+        h2 { font-size: 1.1rem; background: #ecf0f1; padding: 8px 12px; border-left: 4px solid #3498db; margin-top: 20px; }
         label { display: block; margin-bottom: 6px; cursor: pointer; font-size: 0.9rem; padding-left: 15px; }
         input[type="checkbox"] { margin-right: 8px; }
         input[type="text"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        
         .domain-section { margin-bottom: 15px; padding: 10px; border: 1px solid #e0e0e0; border-radius: 6px; }
         .domain-section.disabled { opacity: 0.5; background: #f9f9f9; }
         .domain-toggle { font-weight: bold; font-size: 1.1rem; color: #e74c3c; margin-bottom: 10px; padding-left: 0; }
         
         .instruction-text { font-size: 0.9rem; color: #2c3e50; margin: 10px 0 6px 0; padding-left: 6px; border-left: 3px solid #bdc3c7; line-height: 1.4; font-weight: bold; }
         
-        .result-box { margin-bottom: 20px; padding: 15px; border: 1px solid #b2bec3; border-radius: 6px; background: #fafafa; position: relative; }
+        /* STEP2 プレビュー周り */
+        .result-box { margin-bottom: 20px; padding: 15px; border: 1px solid #b2bec3; border-radius: 6px; background: #fafafa; }
         .result-title { font-weight: bold; font-size: 1.2rem; color: #2c3e50; margin-bottom: 10px; border-bottom: 2px solid #bdc3c7; padding-bottom: 5px; }
         .sub-title { font-weight: bold; font-size: 1rem; color: #16a085; margin: 15px 0 8px 0; border-left: 4px solid #16a085; padding-left: 8px; }
         .content-text { font-size: 0.9rem; color: #444; background: #fff; padding: 10px; border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 15px; white-space: pre-wrap; }
@@ -29,16 +32,24 @@
         .result-label { font-size: 0.8rem; color: #fff; background: #7f8c8d; padding: 2px 6px; border-radius: 3px; margin-right: 8px; vertical-align: middle; }
         .empty-msg { color: #7f8c8d; font-style: italic; font-size: 0.9rem; }
         
+        /* ボタン装飾 */
         button { cursor: pointer; border: none; border-radius: 4px; padding: 6px 12px; font-size: 0.85rem; transition: background 0.2s; font-weight: bold; }
         .btn-clear { background-color: #e74c3c; color: white; font-size: 0.85rem; padding: 6px 12px; }
         .btn-clear:hover { background-color: #c0392b; }
-        .btn-copy { background-color: #3498db; color: white; position: absolute; top: 10px; right: 10px; }
-        .btn-copy:hover { background-color: #2980b9; }
-        .btn-csv { background-color: #27ae60; color: white; font-size: 0.9rem; padding: 8px 16px; }
+        .btn-csv { background-color: #27ae60; color: white; font-size: 0.85rem; padding: 6px 12px; }
         .btn-csv:hover { background-color: #2ecc71; }
-        #output-container { flex-grow: 1; overflow-y: auto; padding-right: 5px; margin-top: 15px; }
+        .btn-insert { background-color: #f39c12; color: white; font-size: 0.9rem; padding: 8px 16px; margin-right: 10px; }
+        .btn-insert:hover { background-color: #d68910; }
+        .btn-copy { background-color: #3498db; color: white; font-size: 0.9rem; padding: 8px 16px; }
+        .btn-copy:hover { background-color: #2980b9; }
         
-        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 4px; padding: 10px; position: fixed; z-index: 1; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 0.9rem; }
+        /* ヘッダー内ボタングループ */
+        .header-buttons { display: flex; gap: 10px; }
+        
+        #output-container { flex-grow: 1; margin-top: 15px; }
+        
+        /* トースト通知 */
+        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 4px; padding: 10px; position: fixed; z-index: 100; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 0.9rem; }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
@@ -49,7 +60,7 @@
 <div class="container">
     <div class="panel left-panel">
         <h1>
-            入力フォーム
+            STEP1：必要事項を選択・入力してください
             <button class="btn-clear" onclick="uncheckAll()">すべてのチェックを外す</button>
         </h1>
         
@@ -59,7 +70,6 @@
             <label class="domain-toggle"><input type="checkbox" id="enable-singing" class="trigger-update"> A表現：歌唱</label>
             <div class="domain-content">
                 <div class="instruction-text">ア 歌唱表現に関わる知識や技能を得たり生かしたりしながら、自己のイメージをもって歌唱表現を創意工夫すること。</div>
-                
                 <div class="instruction-text">イ 次の（ｱ）から（ｳ）までについて理解すること。</div>
                 <label><input type="checkbox" value="曲想と音楽の構造や歌詞、文化的・歴史的背景との関わり" class="singing-k trigger-update"> （ｱ）曲想と音楽の構造や歌詞、文化的・歴史的背景との関わり</label>
                 <label><input type="checkbox" value="言葉の特性と曲種に応じた発声との関わり" class="singing-k trigger-update"> （ｲ）言葉の特性と曲種に応じた発声との関わり</label>
@@ -76,7 +86,6 @@
             <label class="domain-toggle"><input type="checkbox" id="enable-instrumental" class="trigger-update"> A表現：器楽</label>
             <div class="domain-content">
                 <div class="instruction-text">ア 器楽表現に関わる知識や技能を得たり生かしたりしながら、自己のイメージをもって器楽表現を創意工夫すること。</div>
-                
                 <div class="instruction-text">イ 次の（ｱ）から（ｳ）までについて理解すること。</div>
                 <label><input type="checkbox" value="曲想と音楽の構造や文化的・歴史的背景との関わり" class="instrumental-k trigger-update"> （ｱ）曲想と音楽の構造や文化的・歴史的背景との関わり</label>
                 <label><input type="checkbox" value="曲想と楽器の音色や奏法との関わり" class="instrumental-k trigger-update"> （ｲ）曲想と楽器の音色や奏法との関わり</label>
@@ -141,16 +150,41 @@
             <input type="text" id="attitude-input" value="" placeholder="例: 曲想の変化" class="trigger-update">
             <p style="font-size:0.8rem; color:#999; margin-top: 5px;">※自動的に「～に関心をもち、」とつながります。</p>
         </div>
-
     </div>
 
     <div class="panel right-panel">
-        <h1>
-            評価規準（出力結果）
-            <button class="btn-csv" onclick="downloadCSV()">CSVダウンロード</button>
-        </h1>
-        <div id="output-container">
+        
+        <div id="step2-section">
+            <h1 style="align-items: flex-end;">
+                <span style="flex:1;">STEP2：ベースとなる評価規準を確認してください</span>
+                <div class="header-buttons">
+                    <button class="btn-copy" onclick="copyStep2()">コピー</button>
+                    <button class="btn-csv" onclick="downloadCSV()">CSV</button>
+                </div>
+            </h1>
+            <div id="output-container">
+                </div>
+        </div>
+
+        <div id="step3-section" style="margin-top: 30px; border-top: 3px dashed #bdc3c7; padding-top: 20px;">
+            <h1 style="border-bottom: none; padding-bottom: 0;">STEP3：実際の指導に合う形に調整してください</h1>
+            
+            <div style="background:#fff3cd; border:1px solid #ffeeba; color:#856404; padding:12px; border-radius:4px; margin-bottom:15px; font-size:0.9rem;">
+                <strong>必要に応じて次のような点について調整し、より明確な評価規準にしましょう</strong>
+                <ul style="margin-top: 5px; margin-bottom: 0; padding-left: 20px;">
+                    <li>題材で扱わない内容について削除する</li>
+                    <li>「ボレロの曲想と～」「ボレロのリズムを知覚し～」など、具体的な曲名を入れる</li>
+                </ul>
             </div>
+            
+            <div style="margin-bottom: 15px; display: flex; align-items: center;">
+                <button class="btn-insert" onclick="insertToStep3()">STEP2の内容を挿入（リセット）</button>
+                <button class="btn-copy" onclick="copyStep3()">クリップボードにコピー</button>
+            </div>
+            
+            <textarea id="step3-textarea" rows="18" placeholder="「挿入」ボタンを押すと、ここにベースとなる評価規準が入力されます。直接テキストを編集して仕上げてください。" style="width:100%; box-sizing:border-box; padding:12px; font-size:0.95rem; border:1px solid #ccc; border-radius:4px; resize:vertical; background-color:#fff; line-height:1.6;"></textarea>
+        </div>
+
     </div>
 </div>
 
@@ -158,11 +192,18 @@
 
 <script>
     let currentResultsData = []; 
+    let fullPlainTextForStep2 = ""; // STEP2コピー用の全テキスト（内容含む）
+    let fullPlainTextForStep3 = ""; // STEP3に流し込む用の全テキスト（内容含まない）
 
     function joinArray(arr) {
         if (arr.length === 0) return "【要選択】";
         if (arr.length === 1) return arr[0];
         return arr[0] + "や、" + arr.slice(1).join("、");
+    }
+
+    function joinElements(arr) {
+        if (arr.length === 0) return "【要選択】";
+        return arr.join("、");
     }
 
     function getCheckedValues(className) {
@@ -175,7 +216,6 @@
         return Array.from(checkboxes).map(cb => cb.parentElement.textContent.trim());
     }
 
-    // すべてのチェックボックス・テキスト入力を外す/消す関数
     function uncheckAll() {
         document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
             cb.checked = false;
@@ -185,7 +225,6 @@
         updateOutput();
     }
 
-    // 思考・判断要素の取得
     function getCommonElements() {
         const checkboxes = document.querySelectorAll('.common-element:checked');
         let elements = [];
@@ -215,21 +254,35 @@
         setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
     }
 
-    function copyToClipboard(index) {
-        const data = currentResultsData[index];
-        let textToCopy = `【${data.title}】\n\n`;
-        
-        textToCopy += `＜取り扱う内容＞\n${data.contentText}\n\n`;
-        textToCopy += `＜評価規準＞\n`;
-        textToCopy += `[${data.knowledgeLabel}]\n・${data.knowledgeText}\n`;
-        if (data.skillText) {
-            textToCopy += `・${data.skillText}\n`;
+    // STEP2の全体をコピー
+    function copyStep2() {
+        if(!fullPlainTextForStep2.trim() || fullPlainTextForStep2.includes("領域が選択されていません")) {
+            alert("コピーするデータがありません。STEP1で領域を選択してください。");
+            return;
         }
-        textToCopy += `\n[思考・判断・表現]\n・${data.thinkText}\n`;
-        textToCopy += `\n[主体的に学習に取り組む態度]\n・${data.attitudeText}\n`;
+        navigator.clipboard.writeText(fullPlainTextForStep2.trim()).then(() => {
+            showToast("STEP2の内容をコピーしました");
+        }).catch(err => {
+            console.error('コピーに失敗しました', err);
+            alert('クリップボードへのコピーに失敗しました。');
+        });
+    }
 
-        navigator.clipboard.writeText(textToCopy).then(() => {
-            showToast(`${data.title}をクリップボードにコピーしました`);
+    // STEP3へ挿入（内容は含まない）
+    function insertToStep3() {
+        document.getElementById("step3-textarea").value = fullPlainTextForStep3.trim();
+        showToast("STEP2の評価規準をテキストエリアに挿入しました");
+    }
+
+    // STEP3をコピー
+    function copyStep3() {
+        const text = document.getElementById("step3-textarea").value.trim();
+        if(!text) {
+            alert("コピーするテキストがありません。「挿入」ボタンを押すか、テキストを入力してください。");
+            return;
+        }
+        navigator.clipboard.writeText(text).then(() => {
+            showToast("編集した評価規準をコピーしました");
         }).catch(err => {
             console.error('コピーに失敗しました', err);
             alert('クリップボードへのコピーに失敗しました。');
@@ -248,14 +301,11 @@
             const domainName = data.title;
             const escapedContent = `"${data.contentText.replace(/"/g, '""')}"`;
 
-            // 知識・技能
             csvContent += `"${domainName}",${escapedContent},"${data.knowledgeLabel}","${data.knowledgeText}"\n`;
             if (data.skillText) {
                 csvContent += `"${domainName}",${escapedContent},"${data.knowledgeLabel}","${data.skillText}"\n`;
             }
-            // 思考・判断・表現
             csvContent += `"${domainName}",${escapedContent},"思考・判断・表現","${data.thinkText}"\n`;
-            // 態度
             csvContent += `"${domainName}",${escapedContent},"主体的に学習に取り組む態度","${data.attitudeText}"\n`;
         });
 
@@ -271,7 +321,6 @@
         URL.revokeObjectURL(url);
     }
 
-    // 表示用に【要選択】【要入力】を赤文字にするヘルパー関数
     function highlightWarnings(text) {
         if (!text) return "";
         return text.replace(/【要選択】/g, '<span style="color: #e74c3c; font-weight: bold;">【要選択】</span>')
@@ -282,9 +331,11 @@
         const container = document.getElementById("output-container");
         container.innerHTML = ""; 
         currentResultsData = []; 
+        fullPlainTextForStep2 = "";
+        fullPlainTextForStep3 = "";
 
         const commonElementsArr = getCommonElements();
-        const commonElementStr = joinArray(commonElementsArr);
+        const commonElementStr = joinElements(commonElementsArr);
         const elementCount = commonElementsArr.length;
         const workStr = elementCount > 1 ? "それらの" : "その";
         
@@ -377,7 +428,6 @@
                 skillTextStr = `創意工夫を生かした${verb.replace('で','')}表現をするために必要な、${skillValuesJoined}を身に付け、${verb}表している。`;
             }
             
-            // 思考・判断の文言（その/それらの）の反映
             let thinkTextStr = domain.id === "appreciation" 
                 ? `${commonElementStr}を知覚し、${workStr}働きを感受しながら、知覚したことと感受したこととの関わりについて考えるとともに、${thinkValuesJoined}について考え、音楽のよさや美しさを自ら味わって聴いている。`
                 : `${commonElementStr}を知覚し、${workStr}働きを感受しながら、知覚したことと感受したこととの関わりについて考え、${domain.actionText}について表現意図をもっている。`;
@@ -385,8 +435,7 @@
             let attitudeFullStr = `${attitudeBase}主体的・協働的に${domain.attitudeEnd}`;
             let knowledgeLabel = domain.hasSkill ? '知識・技能' : '知識';
 
-            // データ保存（タグ無しの純粋なテキストを保存）
-            const dataIndex = currentResultsData.length;
+            // データ保存（CSV用）
             currentResultsData.push({
                 title: domain.title,
                 contentText: contentTextStr,
@@ -397,16 +446,38 @@
                 attitudeText: attitudeFullStr
             });
 
-            // HTML生成（表示用には highlightWarnings を通して赤文字にする）
+            // --- STEP2 コピー用の文字列生成（「取り扱う内容」を含む） ---
+            fullPlainTextForStep2 += `【${domain.title}】\n\n`;
+            fullPlainTextForStep2 += `＜取り扱う内容＞\n${contentTextStr}\n\n`;
+            fullPlainTextForStep2 += `＜評価規準（ベース）＞\n`;
+            fullPlainTextForStep2 += `[${knowledgeLabel}]\n・${knowledgeTextStr}\n`;
+            if (domain.hasSkill) {
+                fullPlainTextForStep2 += `・${skillTextStr}\n`;
+            }
+            fullPlainTextForStep2 += `\n[思考・判断・表現]\n・${thinkTextStr}\n`;
+            fullPlainTextForStep2 += `\n[主体的に学習に取り組む態度]\n・${attitudeFullStr}\n\n`;
+            fullPlainTextForStep2 += `--------------------------------------------------\n\n`;
+
+            // --- STEP3 テキストエリア用の文字列生成（「取り扱う内容」を含まない） ---
+            fullPlainTextForStep3 += `【${domain.title}】\n\n`;
+            fullPlainTextForStep3 += `＜評価規準（ベース）＞\n`;
+            fullPlainTextForStep3 += `[${knowledgeLabel}]\n・${knowledgeTextStr}\n`;
+            if (domain.hasSkill) {
+                fullPlainTextForStep3 += `・${skillTextStr}\n`;
+            }
+            fullPlainTextForStep3 += `\n[思考・判断・表現]\n・${thinkTextStr}\n`;
+            fullPlainTextForStep3 += `\n[主体的に学習に取り組む態度]\n・${attitudeFullStr}\n\n`;
+            fullPlainTextForStep3 += `--------------------------------------------------\n\n`;
+
+            // HTML生成
             const html = `
                 <div class="result-box">
-                    <button class="btn-copy" onclick="copyToClipboard(${dataIndex})">コピー</button>
                     <div class="result-title">${domain.title}</div>
                     
                     <div class="sub-title">【取り扱う内容】</div>
                     <div class="content-text">${contentTextStr}</div>
 
-                    <div class="sub-title">【評価規準（例）】</div>
+                    <div class="sub-title">【評価規準（ベース）】</div>
                     <div class="result-item"><span class="result-label">${knowledgeLabel}</span>
                         <div>・${highlightWarnings(knowledgeTextStr)}</div>
                         ${domain.hasSkill ? `<div>・${highlightWarnings(skillTextStr)}</div>` : ''}
@@ -423,7 +494,9 @@
         });
 
         if (!hasActiveDomain) {
-            container.innerHTML = "<p class='empty-msg'>左側のフォームから取り扱う領域（A表現/B鑑賞）にチェックを入れてください。</p>";
+            container.innerHTML = "<p class='empty-msg'>左側のフォームから取り扱う領域にチェックを入れてください。</p>";
+            fullPlainTextForStep2 = "領域が選択されていません。STEP1で取り扱う領域にチェックを入れてください。";
+            fullPlainTextForStep3 = "領域が選択されていません。STEP1で取り扱う領域にチェックを入れてから挿入してください。";
         }
     }
 
