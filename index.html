@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>音楽Ⅰ 評価規準作成ツール</title>
+    <title>音楽Ⅰ 評価規準・目標作成ツール</title>
     <style>
         body { font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; line-height: 1.6; }
         .container { display: flex; gap: 20px; max-width: 1200px; margin: 0 auto; align-items: flex-start; }
@@ -30,6 +30,7 @@
         .content-text { font-size: 0.9rem; color: #444; background: #fff; padding: 10px; border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 15px; white-space: pre-wrap; }
         .result-item { margin-bottom: 10px; font-size: 0.95rem; }
         .result-label { font-size: 0.8rem; color: #fff; background: #7f8c8d; padding: 2px 6px; border-radius: 3px; margin-right: 8px; vertical-align: middle; }
+        .goal-label { font-size: 0.8rem; color: #fff; background: #e67e22; padding: 2px 6px; border-radius: 3px; margin-right: 8px; vertical-align: middle; }
         .empty-msg { color: #7f8c8d; font-style: italic; font-size: 0.9rem; }
         
         /* ボタン装飾 */
@@ -58,6 +59,7 @@
 <body>
 
 <div class="container">
+    <!-- STEP1: 入力セクション -->
     <div class="panel left-panel">
         <h1>
             STEP1：必要事項を選択・入力してください
@@ -66,6 +68,7 @@
         
         <h2>取り扱う領域及び内容等に〇を入れる</h2>
 
+        <!-- A表現：歌唱 -->
         <div class="domain-section" id="sec-singing">
             <label class="domain-toggle"><input type="checkbox" id="enable-singing" class="trigger-update"> A表現：歌唱</label>
             <div class="domain-content">
@@ -82,6 +85,7 @@
             </div>
         </div>
 
+        <!-- A表現：器楽 -->
         <div class="domain-section" id="sec-instrumental">
             <label class="domain-toggle"><input type="checkbox" id="enable-instrumental" class="trigger-update"> A表現：器楽</label>
             <div class="domain-content">
@@ -98,6 +102,7 @@
             </div>
         </div>
 
+        <!-- A表現：創作 -->
         <div class="domain-section" id="sec-composition">
             <label class="domain-toggle"><input type="checkbox" id="enable-composition" class="trigger-update"> A表現：創作</label>
             <div class="domain-content">
@@ -110,6 +115,7 @@
             </div>
         </div>
 
+        <!-- B鑑賞 -->
         <div class="domain-section" id="sec-appreciation">
             <label class="domain-toggle"><input type="checkbox" id="enable-appreciation" class="trigger-update"> B鑑賞</label>
             <div class="domain-content">
@@ -152,25 +158,29 @@
         </div>
     </div>
 
+    <!-- 右側セクション（STEP2 & STEP3） -->
     <div class="panel right-panel">
         
+        <!-- STEP2: 出力結果確認 -->
         <div id="step2-section">
             <h1 style="align-items: flex-end;">
-                <span style="flex:1;">STEP2：ベースとなる評価規準を確認してください</span>
+                <span style="flex:1;">STEP2：ベースとなる目標・評価規準を確認してください</span>
                 <div class="header-buttons">
                     <button class="btn-copy" onclick="copyStep2()">コピー</button>
                     <button class="btn-csv" onclick="downloadCSV()">CSV</button>
                 </div>
             </h1>
             <div id="output-container">
-                </div>
+                <!-- JSで動的に生成されます -->
+            </div>
         </div>
 
+        <!-- STEP3: テキスト調整とコピー -->
         <div id="step3-section" style="margin-top: 30px; border-top: 3px dashed #bdc3c7; padding-top: 20px;">
             <h1 style="border-bottom: none; padding-bottom: 0;">STEP3：実際の指導に合う形に調整してください</h1>
             
             <div style="background:#fff3cd; border:1px solid #ffeeba; color:#856404; padding:12px; border-radius:4px; margin-bottom:15px; font-size:0.9rem;">
-                <strong>必要に応じて次のような点について調整し、より明確な評価規準にしましょう</strong>
+                <strong>必要に応じて次のような点について調整し、より明確な目標や評価規準にしましょう</strong>
                 <ul style="margin-top: 5px; margin-bottom: 0; padding-left: 20px;">
                     <li>題材で扱わない内容について削除する</li>
                     <li>「ボレロの曲想と～」「ボレロのリズムを知覚し～」など、具体的な曲名を入れる</li>
@@ -182,7 +192,7 @@
                 <button class="btn-copy" onclick="copyStep3()">クリップボードにコピー</button>
             </div>
             
-            <textarea id="step3-textarea" rows="18" placeholder="「挿入」ボタンを押すと、ここにベースとなる評価規準が入力されます。直接テキストを編集して仕上げてください。" style="width:100%; box-sizing:border-box; padding:12px; font-size:0.95rem; border:1px solid #ccc; border-radius:4px; resize:vertical; background-color:#fff; line-height:1.6;"></textarea>
+            <textarea id="step3-textarea" rows="22" placeholder="「挿入」ボタンを押すと、ここにベースとなる目標と評価規準が入力されます。直接テキストを編集して仕上げてください。" style="width:100%; box-sizing:border-box; padding:12px; font-size:0.95rem; border:1px solid #ccc; border-radius:4px; resize:vertical; background-color:#fff; line-height:1.6;"></textarea>
         </div>
 
     </div>
@@ -254,7 +264,6 @@
         setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
     }
 
-    // STEP2の全体をコピー
     function copyStep2() {
         if(!fullPlainTextForStep2.trim() || fullPlainTextForStep2.includes("領域が選択されていません")) {
             alert("コピーするデータがありません。STEP1で領域を選択してください。");
@@ -268,13 +277,11 @@
         });
     }
 
-    // STEP3へ挿入（内容は含まない）
     function insertToStep3() {
         document.getElementById("step3-textarea").value = fullPlainTextForStep3.trim();
-        showToast("STEP2の評価規準をテキストエリアに挿入しました");
+        showToast("STEP2の目標・評価規準をテキストエリアに挿入しました");
     }
 
-    // STEP3をコピー
     function copyStep3() {
         const text = document.getElementById("step3-textarea").value.trim();
         if(!text) {
@@ -282,7 +289,7 @@
             return;
         }
         navigator.clipboard.writeText(text).then(() => {
-            showToast("編集した評価規準をコピーしました");
+            showToast("編集した目標・評価規準をコピーしました");
         }).catch(err => {
             console.error('コピーに失敗しました', err);
             alert('クリップボードへのコピーに失敗しました。');
@@ -295,12 +302,18 @@
             return;
         }
 
-        let csvContent = "領域,学習指導要領の内容,観点,評価規準文\n";
+        let csvContent = "領域,学習指導要領の内容,観点,文\n";
 
         currentResultsData.forEach(data => {
             const domainName = data.title;
             const escapedContent = `"${data.contentText.replace(/"/g, '""')}"`;
 
+            // 目標のエクスポート
+            csvContent += `"${domainName}",${escapedContent},"目標(1)","${data.goal1}"\n`;
+            csvContent += `"${domainName}",${escapedContent},"目標(2)","${data.goal2}"\n`;
+            csvContent += `"${domainName}",${escapedContent},"目標(3)","${data.goal3}"\n`;
+
+            // 評価規準のエクスポート
             csvContent += `"${domainName}",${escapedContent},"${data.knowledgeLabel}","${data.knowledgeText}"\n`;
             if (data.skillText) {
                 csvContent += `"${domainName}",${escapedContent},"${data.knowledgeLabel}","${data.skillText}"\n`;
@@ -314,7 +327,7 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "音楽_内容と評価規準.csv";
+        a.download = "音楽_内容_目標_評価規準.csv";
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -345,28 +358,32 @@
 
         const domains = [
             {
-                id: "singing", title: "A表現：歌唱", actionText: "どのように歌うか", attitudeEnd: "歌唱の学習活動に取り組もうとしている。",
+                id: "singing", title: "A表現：歌唱", actionText: "どのように歌うか", 
+                attitudeEnd_eval: "歌唱の学習活動に取り組もうとしている。", attitudeEnd_goal: "歌唱の学習活動に取り組むとともに、",
                 enabled: document.getElementById("enable-singing").checked, 
                 knowledgeValues: getCheckedValues("singing-k"), knowledgeLabels: getCheckedLabels("singing-k"),
                 skillValues: getCheckedValues("singing-s"), skillLabels: getCheckedLabels("singing-s"),
                 hasSkill: true
             },
             {
-                id: "instrumental", title: "A表現：器楽", actionText: "どのように演奏するか", attitudeEnd: "器楽の学習活動に取り組もうとしている。",
+                id: "instrumental", title: "A表現：器楽", actionText: "どのように演奏するか", 
+                attitudeEnd_eval: "器楽の学習活動に取り組もうとしている。", attitudeEnd_goal: "器楽の学習活動に取り組むとともに、",
                 enabled: document.getElementById("enable-instrumental").checked, 
                 knowledgeValues: getCheckedValues("instrumental-k"), knowledgeLabels: getCheckedLabels("instrumental-k"),
                 skillValues: getCheckedValues("instrumental-s"), skillLabels: getCheckedLabels("instrumental-s"),
                 hasSkill: true
             },
             {
-                id: "composition", title: "A表現：創作", actionText: "どのように音楽をつくるか", attitudeEnd: "創作の学習活動に取り組もうとしている。",
+                id: "composition", title: "A表現：創作", actionText: "どのように音楽をつくるか", 
+                attitudeEnd_eval: "創作の学習活動に取り組もうとしている。", attitudeEnd_goal: "創作の学習活動に取り組むとともに、",
                 enabled: document.getElementById("enable-composition").checked, 
                 knowledgeStr: "音素材、音を連ねたり重ねたりしたときの響き、音階や音型などの特徴及び構成上の特徴について、表したいイメージと関わらせて", 
                 skillValues: getCheckedValues("composition-s"), skillLabels: getCheckedLabels("composition-s"),
                 hasSkill: true
             },
             {
-                id: "appreciation", title: "B鑑賞", attitudeEnd: "鑑賞の学習活動に取り組もうとしている。",
+                id: "appreciation", title: "B鑑賞", 
+                attitudeEnd_eval: "鑑賞の学習活動に取り組もうとしている。", attitudeEnd_goal: "鑑賞の学習活動に取り組むとともに、",
                 enabled: document.getElementById("enable-appreciation").checked, 
                 knowledgeValues: getCheckedValues("appreciation-k"), knowledgeLabels: getCheckedLabels("appreciation-k"),
                 thinkValues: getCheckedValues("appreciation-t"), thinkLabels: getCheckedLabels("appreciation-t"),
@@ -389,7 +406,7 @@
 
             hasActiveDomain = true;
 
-            // 「取り扱う内容」文の合成
+            // 1. 「取り扱う内容」文の合成
             let contentTextStr = "";
             if (domain.id === "singing") {
                 contentTextStr += "ア 歌唱表現に関わる知識や技能を得たり生かしたりしながら、自己のイメージをもって歌唱表現を創意工夫すること。\n";
@@ -416,29 +433,49 @@
             }
             contentTextStr = contentTextStr.trim();
 
-            // 「評価規準」文の合成
-            let knowledgeValuesJoined = domain.knowledgeStr || joinArray(domain.knowledgeValues);
-            let skillValuesJoined = domain.hasSkill ? joinArray(domain.skillValues) : "";
-            let thinkValuesJoined = domain.id === "appreciation" ? joinArray(domain.thinkValues) : "";
+            // ベース文字列の取得
+            let knowledgeBase = domain.knowledgeStr || joinArray(domain.knowledgeValues);
+            let skillBase = domain.hasSkill ? joinArray(domain.skillValues) : "";
+            let thinkBase = domain.id === "appreciation" ? joinArray(domain.thinkValues) : "";
 
-            let knowledgeTextStr = domain.id === "composition" ? `${knowledgeValuesJoined}理解している。` : `${knowledgeValuesJoined}について理解している。`;
+            // 2. 「評価規準」文の合成
+            let knowledgeTextStr = domain.id === "composition" ? `${knowledgeBase}理解している。` : `${knowledgeBase}について理解している。`;
             let skillTextStr = "";
             if (domain.hasSkill) {
                 let verb = domain.id === "singing" ? "歌唱で" : (domain.id === "instrumental" ? "器楽で" : "創作で");
-                skillTextStr = `創意工夫を生かした${verb.replace('で','')}表現をするために必要な、${skillValuesJoined}を身に付け、${verb}表している。`;
+                skillTextStr = `創意工夫を生かした${verb.replace('で','')}表現をするために必要な、${skillBase}を身に付け、${verb}表している。`;
             }
             
             let thinkTextStr = domain.id === "appreciation" 
-                ? `${commonElementStr}を知覚し、${workStr}働きを感受しながら、知覚したことと感受したこととの関わりについて考えるとともに、${thinkValuesJoined}について考え、音楽のよさや美しさを自ら味わって聴いている。`
+                ? `${commonElementStr}を知覚し、${workStr}働きを感受しながら、知覚したことと感受したこととの関わりについて考えるとともに、${thinkBase}について考え、音楽のよさや美しさを自ら味わって聴いている。`
                 : `${commonElementStr}を知覚し、${workStr}働きを感受しながら、知覚したことと感受したこととの関わりについて考え、${domain.actionText}について表現意図をもっている。`;
             
-            let attitudeFullStr = `${attitudeBase}主体的・協働的に${domain.attitudeEnd}`;
+            let attitudeFullStr = `${attitudeBase}主体的・協働的に${domain.attitudeEnd_eval}`;
             let knowledgeLabel = domain.hasSkill ? '知識・技能' : '知識';
+
+            // 3. 「目標」文の合成
+            let goal1 = "";
+            if (domain.hasSkill) {
+                let verb = domain.id === "singing" ? "歌唱" : (domain.id === "instrumental" ? "器楽" : "創作");
+                let k_part = domain.id === "composition" ? `${knowledgeBase}理解するとともに、` : `${knowledgeBase}について理解するとともに、`;
+                goal1 = `${k_part}創意工夫を生かした${verb}表現をするために必要な、${skillBase}を身に付ける。`;
+            } else {
+                goal1 = `${knowledgeBase}について理解する。`; // B鑑賞には技能がないため
+            }
+
+            let goal2 = domain.id === "appreciation"
+                ? `${commonElementStr}を知覚し、${workStr}働きを感受しながら、知覚したことと感受したこととの関わりについて考えるとともに、${thinkBase}について考え、音楽のよさや美しさを自ら味わって聴く。`
+                : `${commonElementStr}を知覚し、${workStr}働きを感受しながら、知覚したことと感受したこととの関わりについて考え、${domain.actionText}について表現意図をもつ。`;
+
+            let goal3 = `${attitudeBase}主体的・協働的に${domain.attitudeEnd_goal}音楽に対する感性を豊かにし、音楽を愛好する心情を養う。`;
 
             // データ保存（CSV用）
             currentResultsData.push({
                 title: domain.title,
                 contentText: contentTextStr,
+                goal1: goal1,
+                goal2: goal2,
+                goal3: goal3,
                 knowledgeLabel: knowledgeLabel,
                 knowledgeText: knowledgeTextStr,
                 skillText: skillTextStr,
@@ -449,6 +486,10 @@
             // --- STEP2 コピー用の文字列生成（「取り扱う内容」を含む） ---
             fullPlainTextForStep2 += `【${domain.title}】\n\n`;
             fullPlainTextForStep2 += `＜取り扱う内容＞\n${contentTextStr}\n\n`;
+            fullPlainTextForStep2 += `＜目標（ベース）＞\n`;
+            fullPlainTextForStep2 += `[(1)] ・${goal1}\n`;
+            fullPlainTextForStep2 += `[(2)] ・${goal2}\n`;
+            fullPlainTextForStep2 += `[(3)] ・${goal3}\n\n`;
             fullPlainTextForStep2 += `＜評価規準（ベース）＞\n`;
             fullPlainTextForStep2 += `[${knowledgeLabel}]\n・${knowledgeTextStr}\n`;
             if (domain.hasSkill) {
@@ -460,6 +501,10 @@
 
             // --- STEP3 テキストエリア用の文字列生成（「取り扱う内容」を含まない） ---
             fullPlainTextForStep3 += `【${domain.title}】\n\n`;
+            fullPlainTextForStep3 += `＜目標（ベース）＞\n`;
+            fullPlainTextForStep3 += `[(1)] ・${goal1}\n`;
+            fullPlainTextForStep3 += `[(2)] ・${goal2}\n`;
+            fullPlainTextForStep3 += `[(3)] ・${goal3}\n\n`;
             fullPlainTextForStep3 += `＜評価規準（ベース）＞\n`;
             fullPlainTextForStep3 += `[${knowledgeLabel}]\n・${knowledgeTextStr}\n`;
             if (domain.hasSkill) {
@@ -476,6 +521,17 @@
                     
                     <div class="sub-title">【取り扱う内容】</div>
                     <div class="content-text">${contentTextStr}</div>
+
+                    <div class="sub-title">【目標（ベース）】</div>
+                    <div class="result-item"><span class="goal-label">目標(1)</span>
+                        <div>・${highlightWarnings(goal1)}</div>
+                    </div>
+                    <div class="result-item"><span class="goal-label">目標(2)</span>
+                        <div>・${highlightWarnings(goal2)}</div>
+                    </div>
+                    <div class="result-item"><span class="goal-label">目標(3)</span>
+                        <div>・${highlightWarnings(goal3)}</div>
+                    </div>
 
                     <div class="sub-title">【評価規準（ベース）】</div>
                     <div class="result-item"><span class="result-label">${knowledgeLabel}</span>
