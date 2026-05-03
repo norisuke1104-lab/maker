@@ -18,7 +18,6 @@
         input[type="text"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         
         .domain-section { margin-bottom: 15px; padding: 10px; border: 1px solid #e0e0e0; border-radius: 6px; }
-        .domain-section.disabled { opacity: 0.5; background: #f9f9f9; }
         .domain-toggle { font-weight: bold; font-size: 1.1rem; color: #e74c3c; margin-bottom: 10px; padding-left: 0; }
         
         .instruction-text { font-size: 0.9rem; color: #2c3e50; margin: 10px 0 6px 0; padding-left: 6px; border-left: 3px solid #bdc3c7; line-height: 1.4; font-weight: bold; }
@@ -45,7 +44,7 @@
         .btn-copy:hover { background-color: #2980b9; }
         
         /* ヘッダー内ボタングループ */
-        .header-buttons { display: flex; gap: 10px; }
+        .header-buttons { display: flex; gap: 10px; align-items: center; }
         
         #output-container { flex-grow: 1; margin-top: 15px; }
         
@@ -166,6 +165,7 @@
             <h1 style="align-items: flex-end;">
                 <span style="flex:1;">STEP2：ベースとなる目標・評価規準を確認してください</span>
                 <div class="header-buttons">
+                    <span id="copy-warning" style="color: #e74c3c; font-weight: bold; font-size: 0.85rem; display: none;">未選択・未入力の項目を確認してください</span>
                     <button class="btn-copy" onclick="copyStep2()">コピー</button>
                     <button class="btn-csv" onclick="downloadCSV()">CSV</button>
                 </div>
@@ -190,6 +190,7 @@
             <div style="margin-bottom: 15px; display: flex; align-items: center;">
                 <button class="btn-insert" onclick="insertToStep3()">STEP2の内容を挿入（リセット）</button>
                 <button class="btn-copy" onclick="copyStep3()">クリップボードにコピー</button>
+                <span id="insert-warning" style="color: #e74c3c; font-weight: bold; margin-left: 15px; display: none;">未選択・未入力の項目を確認してください</span>
             </div>
             
             <textarea id="step3-textarea" rows="22" placeholder="「挿入」ボタンを押すと、ここにベースとなる目標と評価規準が入力されます。直接テキストを編集して仕上げてください。" style="width:100%; box-sizing:border-box; padding:12px; font-size:0.95rem; border:1px solid #ccc; border-radius:4px; resize:vertical; background-color:#fff; line-height:1.6;"></textarea>
@@ -265,10 +266,14 @@
     }
 
     function copyStep2() {
-        if(!fullPlainTextForStep2.trim() || fullPlainTextForStep2.includes("領域が選択されていません")) {
-            alert("コピーするデータがありません。STEP1で領域を選択してください。");
+        const warningEl = document.getElementById("copy-warning");
+
+        if (fullPlainTextForStep2.includes("【要選択】") || fullPlainTextForStep2.includes("【要入力】") || !fullPlainTextForStep2.trim() || fullPlainTextForStep2.includes("領域が選択されていません")) {
+            warningEl.style.display = "inline";
             return;
         }
+
+        warningEl.style.display = "none";
         navigator.clipboard.writeText(fullPlainTextForStep2.trim()).then(() => {
             showToast("STEP2の内容をコピーしました");
         }).catch(err => {
@@ -278,6 +283,16 @@
     }
 
     function insertToStep3() {
+        const warningEl = document.getElementById("insert-warning");
+        
+        // 未入力・未選択がある場合は警告を出し、処理を中断
+        if (fullPlainTextForStep3.includes("【要選択】") || fullPlainTextForStep3.includes("【要入力】") || !fullPlainTextForStep3.trim() || fullPlainTextForStep3.includes("領域が選択されていません")) {
+            warningEl.style.display = "inline";
+            return;
+        }
+        
+        // 問題なければ警告を消して挿入
+        warningEl.style.display = "none";
         document.getElementById("step3-textarea").value = fullPlainTextForStep3.trim();
         showToast("STEP2の目標・評価規準をテキストエリアに挿入しました");
     }
@@ -341,6 +356,13 @@
     }
 
     function updateOutput() {
+        // 更新時に入力エラーの赤文字を一度隠す
+        const warningElInsert = document.getElementById("insert-warning");
+        if (warningElInsert) warningElInsert.style.display = "none";
+        
+        const warningElCopy = document.getElementById("copy-warning");
+        if (warningElCopy) warningElCopy.style.display = "none";
+
         const container = document.getElementById("output-container");
         container.innerHTML = ""; 
         currentResultsData = []; 
@@ -396,10 +418,9 @@
         domains.forEach((domain) => {
             const section = document.getElementById(`sec-${domain.id}`);
             if (domain.enabled) {
-                section.classList.remove("disabled");
+                // disabledクラス追加・削除の処理を廃止し、通常表示のままに
                 section.querySelectorAll(".domain-content input").forEach(input => input.disabled = false);
             } else {
-                section.classList.add("disabled");
                 section.querySelectorAll(".domain-content input").forEach(input => input.disabled = true);
                 return; 
             }
@@ -460,7 +481,7 @@
                 let k_part = domain.id === "composition" ? `${knowledgeBase}理解するとともに、` : `${knowledgeBase}について理解するとともに、`;
                 goal1 = `${k_part}創意工夫を生かした${verb}表現をするために必要な、${skillBase}を身に付ける。`;
             } else {
-                goal1 = `${knowledgeBase}について理解する。`; // B鑑賞には技能がないため
+                goal1 = `${knowledgeBase}について理解する。`;
             }
 
             let goal2 = domain.id === "appreciation"
